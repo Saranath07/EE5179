@@ -1,7 +1,6 @@
 import numpy as np
 from activations import Activations
 from lossfunctions import LossFunctions
-from sklearn.metrics import r2_score
 from initialization import ParameterInitializer
 
 softmax = Activations.Softmax()
@@ -10,12 +9,17 @@ crossentropy = LossFunctions.CrossEntropyLoss()
 
 class FeedForwardNeuralNets:
     def __init__(self, inputs, hidden_layers, outputs, g=sigmoid, L=crossentropy, O=softmax, eta=0.01, 
-                 optimizer="gd", initialization_method="gaussian", batch_size=32, beta1=0.9, beta2=0.999, epsilon=1e-8, t=0):
+                 optimizer="gd", initialization_method="gaussian", batch_size=32,
+                 beta1=0.9, beta2=0.999, epsilon=1e-8, t=0):
         self.inputs = inputs
         self.outputs = outputs
         self.batch_size = min(batch_size, inputs.shape[0])
-        self.parameters = ParameterInitializer(initialization_method).initialize_parameters(
-            inputs[0].shape[0], hidden_layers, outputs[0].shape[0])
+        if len(self.outputs.shape) < 2:
+            self.parameters = ParameterInitializer(initialization_method).initialize_parameters(
+            inputs[0].shape[0], hidden_layers, 1)
+        else:
+            self.parameters = ParameterInitializer(initialization_method).initialize_parameters(
+                inputs[0].shape[0], hidden_layers, outputs[0].shape[0])
         self.g = g
         self.O = O
         self.L = L
@@ -37,6 +41,7 @@ class FeedForwardNeuralNets:
             self.optimizer = self.adam
 
     def forward_propogation(self, x):
+        
         self.activations["a1"] = self.parameters["W1"] @ x + self.parameters["b1"]
         self.activations["h1"] = self.g(self.activations["a1"])
         for i in range(2, len(self.parameters) // 2):
