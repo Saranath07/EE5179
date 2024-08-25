@@ -2,7 +2,7 @@ import numpy as np
 
 class LossFunctions:
 
-    class SSE:
+    class SquaredErrorLoss:
         def __init__(self):
             pass
 
@@ -17,7 +17,7 @@ class LossFunctions:
             Returns:
             float: The mean squared error.
             """
-            return np.sum(np.square(y_pred - y_true))
+            return 0.5 * (y_pred - y_true) ** 2
 
         def gradient(self, y_pred, y_true):
             """
@@ -33,10 +33,10 @@ class LossFunctions:
             return 2 * (y_pred - y_true)
         
         def __repr__(self):
-            return "SSE"
+            return "SquaredErrorLoss"
 
 
-    class CrossEntropy:
+    class CrossEntropyLoss:
         def __init__(self):
             pass
 
@@ -71,4 +71,4 @@ class LossFunctions:
             return - (y_true / y_pred)
         
         def __repr__(self):
-            return "CrossEntropy"
+            return "CrossEntropyLoss"
