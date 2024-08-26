@@ -35,12 +35,19 @@ class FeedForwardNeuralNets:
         
         if optimizer == "gd":
             self.optimizer = self.gradient_descent
-        elif optimizer == "sgd":
-            self.optimizer = self.sgd
         elif optimizer == "adam":
             self.optimizer = self.adam
 
     def forward_propogation(self, x):
+        """
+        Performs forward propagation through the neural network.
+
+        Parameters:
+            x (numpy array): The input to the neural network.
+
+        Returns:
+            y_pred (numpy array): The predicted output of the neural network.
+        """
         
         self.activations["a1"] = self.parameters["W1"] @ x + self.parameters["b1"]
         self.activations["h1"] = self.g(self.activations["a1"])
@@ -53,6 +60,17 @@ class FeedForwardNeuralNets:
         return y_pred
 
     def backPropogation(self, y_pred, y, x):
+        """
+        Performs backpropagation through the neural network.
+
+        Parameters:
+            y_pred (numpy array): The predicted output of the neural network.
+            y (numpy array): The actual output of the neural network.
+            x (numpy array): The input to the neural network.
+
+        Returns:
+            None
+        """
         n = len(self.parameters) // 2
         m = len(self.activations) // 2
 
@@ -76,18 +94,34 @@ class FeedForwardNeuralNets:
         self.losses["b1"] = La.copy()
 
     def gradient_descent(self):
+        """
+        Performs gradient descent optimization on the neural network's parameters.
+
+        Updates the weights (W) and biases (b) of the neural network by subtracting the product of the learning rate (eta) and the corresponding losses.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         for i in range(len(self.parameters) // 2):
             self.parameters[f"W{i + 1}"] = self.parameters[f"W{i + 1}"] - self.eta * self.losses[f"W{i + 1}"]
             self.parameters[f"b{i + 1}"] = self.parameters[f"b{i + 1}"] - self.eta * self.losses[f"b{i + 1}"]
 
-    def sgd(self):
-        num_samples = len(self.losses)
-        for i in range(num_samples):
-            for j in range(1, len(self.parameters) // 2 + 1):
-                self.parameters[f"W{j}"] = self.parameters[f"W{j}"] - self.eta * self.losses[f"W{j}"]
-                self.parameters[f"b{j}"] = self.parameters[f"b{j}"] - self.eta * self.losses[f"b{j}"]
 
     def adam(self):
+        """
+        Performs Adam optimization on the neural network's parameters.
+
+        Updates the weights (W) and biases (b) of the neural network using the Adam optimization algorithm.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self.t += 1
         for key in self.parameters.keys():
             if key.startswith("W") or key.startswith("b"):
@@ -102,6 +136,21 @@ class FeedForwardNeuralNets:
                 self.parameters[key] -= self.eta * v_corrected / (np.sqrt(s_corrected) + self.epsilon)
 
     def train(self, epochs):
+        """
+        Trains the neural network model for a specified number of epochs.
+
+        This function takes in the number of epochs as input and performs the following operations:
+            - Shuffles the input data and corresponding outputs.
+            - Divides the shuffled data into batches based on the batch size.
+            - For each batch, it calculates the total gradient loss by iterating over each input and output pair.
+            - It then updates the model parameters using the optimizer function.
+
+        Parameters:
+            epochs (int): The number of epochs to train the model for.
+
+        Returns:
+            None
+        """
         for _ in range(epochs):
             permutation = np.random.permutation(self.inputs.shape[0])
             inputs_shuffled = self.inputs[permutation]
@@ -124,4 +173,13 @@ class FeedForwardNeuralNets:
                 self.optimizer()
 
     def evaluate(self, X):
+        """
+        Evaluates the neural network model for the given input X.
+
+        Parameters:
+            X (numpy array): The input to the neural network.
+
+        Returns:
+            numpy array: The predicted output of the neural network.
+        """
         return np.array(self.forward_propogation(X))
